@@ -67,7 +67,6 @@ def clean_flights(flights_df):
     
     print(f"🧹 Cleaning flight data...")
     print(f"Starting with {len(flights_df)} flights")
-    
     # The OpenSky API returns data as a list of lists without column names
     # We need to assign proper column names
     expected_columns = [
@@ -84,9 +83,11 @@ def clean_flights(flights_df):
         'true_track',       # Aircraft heading in degrees
         'vertical_rate'     # Vertical speed in m/s
     ]
-    
+    flights_df = flights_df.iloc[:, :12]
     # Make a copy to avoid modifying the original
     df = flights_df.copy()
+    print(df.describe)
+
     
     # TODO: Assign column names to the DataFrame
     df.columns = expected_columns
@@ -95,7 +96,6 @@ def clean_flights(flights_df):
     df = df.dropna(subset=['longitude', 'latitude'])
     
     # TODO: Convert altitude from meters to feet (multiply by 3.28084)
-    # This makes it easier to understand for aviation
     df['altitude'] = df['altitude'] * 3.28084
     
     # TODO: Remove flights with invalid coordinates
