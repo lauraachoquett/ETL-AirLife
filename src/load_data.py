@@ -14,8 +14,8 @@ import psycopg2
 # Database connection configuration
 # TODO: Update these values with your actual database credentials
 DATABASE_CONFIG = {
-    'username': 'your_username',
-    'password': 'your_password', 
+    'username': 'laura',
+    'password': '',  # Laissez vide si aucun mot de passe n'est défini pour l'utilisateur PostgreSQL
     'host': 'localhost',
     'port': '5432',
     'database': 'airlife_db'
@@ -36,18 +36,17 @@ def load_to_database(airports_df, flights_df):
     print("💾 Loading data to PostgreSQL database...")
     
     # TODO: Create connection string using the function above
-    # connection_string = get_connection_string()
+    connection_string = get_connection_string()
     
     try:
         # TODO: Create SQLAlchemy engine
-        # Hint: engine = create_engine(connection_string)
+        # Hint: 
+        engine = create_engine(connection_string)
+        airports_df.to_sql('airports', engine, if_exists='replace', index=False)
         
-        print("⚠️  Database loading not yet implemented")
-        return
         
         # TODO: Load airports data
         # Use pandas to_sql method to insert data
-        # Hint: airports_df.to_sql('airports', engine, if_exists='replace', index=False)
         # 
         # Parameters explanation:
         # - 'airports': table name in database
@@ -57,16 +56,17 @@ def load_to_database(airports_df, flights_df):
         
         # TODO: Load flights data (only if not empty)
         # Check if flights_df is not empty before loading
-        # Hint: if not flights_df.empty:
-        #           flights_df.to_sql('flights', engine, if_exists='replace', index=False)
+        if not flights_df.empty:
+                  flights_df.to_sql('flights', engine, if_exists='replace', index=False)
         
         # TODO: Print loading statistics
-        # print(f"✅ Loaded {len(airports_df)} airports to database")
-        # if not flights_df.empty:
-        #     print(f"✅ Loaded {len(flights_df)} flights to database")
-        # else:
-        #     print("ℹ️  No flight data to load")
-        
+        print(f"✅ Loaded {len(airports_df)} airports to database")
+        if not flights_df.empty:
+            print(f"✅ Loaded {len(flights_df)} flights to database")
+        else:
+            print("ℹ️  No flight data to load")
+            
+        return
     except Exception as e:
         print(f"❌ Error loading data to database: {e}")
         print("💡 Make sure:")
@@ -202,9 +202,8 @@ def test_database_connection():
         return False
 
 if __name__ == "__main__":
-    """Test the loading functions"""
     print("Testing database loading functions...\n")
-    
+    path_airport = 'data/airports.csv'
     # Test database connection first
     if test_database_connection():
         print("\nDatabase connection OK. Ready for data loading!")
