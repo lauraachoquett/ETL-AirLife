@@ -6,7 +6,7 @@ This module handles cleaning and transforming the extracted data:
 - Clean flight data (standardize columns, convert units)
 - Combine data for loading
 """
-
+from src.haversine import haversine
 import pandas as pd
 import numpy as np
 
@@ -86,7 +86,6 @@ def clean_flights(flights_df):
     flights_df = flights_df.iloc[:, :12]
     # Make a copy to avoid modifying the original
     df = flights_df.copy()
-    print(df.describe)
 
     
     # TODO: Assign column names to the DataFrame
@@ -137,9 +136,26 @@ def combine_data(airports_df, flights_df):
     # TODO (Optional): If you want to try something more advanced,
     # you could find the nearest airport for each flight:
     # 
-    # def find_nearest_airport(flight_lat, flight_lon, airports_df):
-    #     # Calculate distances and return nearest airport
-    #     pass
+    
+    def find_nearest_airport(flight_lat, flight_lon, airports_df):
+        min_dist = np.inf
+        closest_airport = ""
+        
+        for _, airport in airports_df.iterrows():
+            airport_lat = airport['latitude']
+            airport_lon = airport['longitude']
+            dist = haversine(airport_lat, airport_lon, flight_lat, flight_lon)
+            if dist < min_dist:
+                min_dist = dist
+                closest_airport = airport['iata_code']
+        
+        return closest_airport    
+    
+    flights_df = flights_df.copy()
+    flights_df['nearest_airport'] = flights_df.apply(
+        lambda row: find_nearest_airport(row['latitude'], row['longitude'], airports_df), axis=1
+    )
+    
     
     return airports_df, flights_df
 
